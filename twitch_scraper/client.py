@@ -137,6 +137,8 @@ class TwitchApiClient:
         ):
             params = {k: v for k, v in locals().items() if v is not None}
             params["first"] = 100
+            if after is not None:
+                params["after"] = after
             clips = self.get("clips", params)
             return clips
 
@@ -161,15 +163,13 @@ class TwitchApiClient:
             ended_at=ended_at,  # type:ignore
         )
         clips.extend([TwitchClip.from_json(i) for i in data["data"]])
-
         try:
             next_page_token = data["pagination"]["cursor"]
         except:
             next_page_token = None
-
         while next_page_token:
             data = __get_clips(
-                broadcaster_id=username,
+                broadcaster_id=user_id,
                 game_id=game,
                 started_at=started_at,  # type:ignore
                 ended_at=ended_at,  # type:ignore
